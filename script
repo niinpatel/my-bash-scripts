@@ -1,0 +1,81 @@
+alias please="sudo"
+
+# Git related
+
+# aliases so i don't have to type full word
+alias gi="git"
+alias g="git"
+alias gt="git"
+
+
+# submodule update
+function gsu(){
+    echo "running git submodule update --init --recursive"
+    git submodule update --init --recursive
+}
+
+# git checkout master
+function gcoma(){
+    echo "running git checkout master || git checkout main"
+    git checkout master || git checkout main
+}
+
+# git checkout {any-branch}
+function gco(){
+    if [[ $1 == "ma" ]] || [[ $1 == "" ]]; then
+        gcoma
+    else
+        echo "running git checkout $1"
+        git checkout $1
+    fi
+}
+
+# aliases
+alias gico='gco'
+alias gicoma='gcoma'
+
+
+# git reset hard (optionally can pass commit hash)
+function gre(){
+    echo "running git reset --hard $1"
+    git reset --hard $1
+}
+
+# git push 
+function gpsh(){
+    echo "running git push -u origin HEAD"
+    git push -u origin HEAD
+}
+
+# git add + commit + push
+function acp(){
+    echo "running git add -A; git commit -m '$*'; git push"
+    git add -A; git commit -m "$*"; git push
+}
+
+# git push force
+function gpf(){
+    echo "running git push -f"
+    git push -f
+} 
+
+# delete all branches except master
+function deleteAllBranches(){
+    echo "Deleting all branches except master and main"
+    git branch | grep -v "master" | grep -v "main" | xargs git branch -D 
+}
+
+
+# This one is my favorite
+# It checks out into a branch, pushes current changes and raises a pull request in github! 
+# pull request url is copied in clipboard too! 
+# need to install hub (hub.github.com) to make it work
+function prthis(){
+    message=$*
+    branch_name=$(sed -e 's/ /-/g' <<< $message)
+    git checkout -b $branch_name
+    acp $message
+    
+    # to make this work, install hub https://hub.github.com/hub.1.html#configuration 
+    hub pull-request --push --browse --copy --draft --message $message
+}
