@@ -1,6 +1,6 @@
 #!/bin/bash
 
-alias please="sudo"
+alias please="sudo"  # https://twitter.com/ctrlshifti/status/1160812366293901314
 
 # Git related
 
