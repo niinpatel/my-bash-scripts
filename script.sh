@@ -72,12 +72,51 @@ function deleteAllBranches(){
 # It checks out into a branch, pushes current changes and raises a pull request in github! 
 # pull request url is copied in clipboard too! 
 # need to install hub (hub.github.com) to make it work
-function prthis(){
-    message=$*
-    branch_name=$(sed -e 's/ /-/g' <<< $message)
-    git checkout -b $branch_name
-    acp $message
+prthis() {
+    local message="$*"
+    local branch_name=$(sed -e 's/ /-/g' <<< "$message")
     
-    # to make this work, install hub https://hub.github.com/hub.1.html#configuration 
-    hub pull-request --push --browse --copy --draft --message $message
+    git checkout -b "$branch_name"
+    acp "$message"
+
+    local git_root=$(git rev-parse --show-toplevel)
+    local pr_template_content=$(get_pr_template_content "$git_root")
+
+    hub_create_pr "$message" "$pr_template_content"
+}
+
+# Function to find and retrieve the content of the PR template
+get_pr_template_content() {
+    local git_root="$1"
+
+    # List of possible template locations
+    local templates=(
+        "$git_root/pull_request_template.md"
+        "$git_root/PULL_REQUEST_TEMPLATE.md"
+        "$git_root/.github/pull_request_template.md"
+        "$git_root/.github/PULL_REQUEST_TEMPLATE.md"
+    )
+
+    for template in "${templates[@]}"; do
+        if [[ -f "$template" ]]; then
+            cat "$template"
+            return
+        fi
+    done
+}
+
+hub_create_pr() {
+    local message="$1"
+    local pr_template_content="$2"
+
+    if hub pull-request --push --browse --copy --draft --message "$message
+
+$pr_template_content"; then
+        echo "Draft PR created successfully."
+    else
+        echo "Failed to create a draft PR. Trying to create a regular PR..."
+        hub pull-request --push --browse --copy --message "$message
+
+$pr_template_content" || echo "Failed to create a regular PR as well."
+    fi
 }
