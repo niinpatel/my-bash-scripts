@@ -1,5 +1,6 @@
 #!/bin/bash
 
+alias python="python3"
 alias please="sudo"  # https://twitter.com/ctrlshifti/status/1160812366293901314
 
 # Git related
